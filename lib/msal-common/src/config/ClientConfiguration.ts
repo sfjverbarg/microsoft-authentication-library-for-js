@@ -11,6 +11,7 @@ import { Constants } from "../utils/Constants";
 import { version } from "../../package.json";
 import { Authority } from "../authority/Authority";
 import { CacheManager, DefaultStorageClass } from "../cache/CacheManager";
+import { ThrottlingManager, DefaultThrottlingManager } from "../network/ThrottlingManager";
 
 // Token renewal offset default in seconds
 const DEFAULT_TOKEN_RENEWAL_OFFSET_SEC = 300;
@@ -31,7 +32,8 @@ export type ClientConfiguration = {
     storageInterface?: CacheManager,
     networkInterface?: INetworkModule,
     cryptoInterface?: ICrypto,
-    libraryInfo?: LibraryInfo
+    libraryInfo?: LibraryInfo,
+    throttlingManager?: ThrottlingManager
 };
 
 /**
@@ -161,7 +163,8 @@ export function buildClientConfiguration(
         storageInterface: storageImplementation,
         networkInterface: networkImplementation,
         cryptoInterface: cryptoImplementation,
-        libraryInfo: libraryInfo
+        libraryInfo: libraryInfo,
+        throttlingManager: throttlingImplementation
     } : ClientConfiguration): ClientConfiguration {
     return {
         authOptions: { ...DEFAULT_AUTH_OPTIONS, ...userAuthOptions },
@@ -170,6 +173,7 @@ export function buildClientConfiguration(
         storageInterface: storageImplementation || new DefaultStorageClass(),
         networkInterface: networkImplementation || DEFAULT_NETWORK_IMPLEMENTATION,
         cryptoInterface: cryptoImplementation || DEFAULT_CRYPTO_IMPLEMENTATION,
-        libraryInfo: { ...DEFAULT_LIBRARY_INFO, ...libraryInfo }
+        libraryInfo: { ...DEFAULT_LIBRARY_INFO, ...libraryInfo },
+        throttlingManager: throttlingImplementation || new DefaultThrottlingManager(networkImplementation || DEFAULT_NETWORK_IMPLEMENTATION)
     };
 }
